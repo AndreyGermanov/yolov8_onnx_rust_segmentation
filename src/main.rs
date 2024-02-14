@@ -129,7 +129,6 @@ fn process_output(outputs:(Array<f32,IxDyn>,Array<f32,IxDyn>),img_width: u32, im
 // 160x160 YOLOv8 output to correct size and returns it as a two dimensional array
 fn process_mask(mask:Array2<f32>,rect:(f32,f32,f32,f32),img_width:u32, img_height:u32) -> Vec<Vec<u8>> {
     let (x1,y1,x2,y2) = rect;
-    //let mut mask_img = image::DynamicImage::new_rgb8(((x2-x1)/(img_width as f32) * 160.0) as u32+1, ((y2-y1)/(img_height as f32) * 160.0) as u32+1);
     let mut mask_img = image::DynamicImage::new_rgb8(161,161);
     let mut index = 0.0;
     mask.for_each(|item| {
