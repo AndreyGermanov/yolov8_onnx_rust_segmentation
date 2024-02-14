@@ -6,7 +6,7 @@ implemented on [Rust](https://www.rust-lang.org/) using ONNX.
 This is a source code for a ["How to create YOLOv8-based object detection web service using Python, Julia, Node.js, JavaScript, Go and Rust"](https://dev.to/andreygermanov/how-to-create-yolov8-based-object-detection-web-service-using-python-julia-nodejs-javascript-go-and-rust-4o8e) tutorial
 extended by instance segmentation. This web application uses the YOLOv8 both for object detection and segmentation.
 
-See demo here:
+See demo here: https://youtu.be/hxtTkEJ7KL0
 
 The algorithm, that used to run YOLOv8 segmentation using ONNX described in [this article](https://dev.to/andreygermanov/how-to-implement-instance-segmentation-using-yolov8-neural-network-3if9).
 
