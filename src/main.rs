@@ -33,8 +33,17 @@ fn index() -> content::RawHtml<String> {
 #[post("/", data = "<file>")]
 fn detect(file: Form<TempFile<'_>>) -> String {
     let buf = std::fs::read(file.path().unwrap_or(Path::new(""))).unwrap_or(vec![]);
-    let boxes = detect_objects_on_image(buf);
+    let boxes = detect_objects_on_image(buf,detect_image_format(file));
     return serde_json::to_string(&boxes).unwrap_or_default()
+}
+
+fn detect_image_format(file: Form<TempFile<'_>>) -> ImageFormat {
+    match file.content_type().unwrap().to_string().split("/").nth(1).unwrap() {
+        "png" => ImageFormat::Png,
+        "gif" => ImageFormat::Gif,
+        "webp" => ImageFormat::WebP,
+        _ => ImageFormat::Jpeg
+    }
 }
 
 // Function receives an image,
@@ -42,8 +51,8 @@ fn detect(file: Form<TempFile<'_>>) -> String {
 // and returns an array of detected objects,
 // their bounding boxes and segmentation masks
 // Returns Array of objects in format [(x1,y1,x2,y2,object_type,probability,mask),..]
-fn detect_objects_on_image(buf: Vec<u8>) -> Vec<(f32,f32,f32,f32,&'static str,f32,Vec<Vec<u8>>)> {
-    let (input,img_width,img_height) = prepare_input(buf);
+fn detect_objects_on_image(buf: Vec<u8>, image_format: ImageFormat) -> Vec<(f32,f32,f32,f32,&'static str,f32,Vec<Vec<u8>>)> {
+    let (input,img_width,img_height) = prepare_input(buf,image_format);
     let output = run_model(input);
     return process_output(output, img_width, img_height);
 }
@@ -52,8 +61,8 @@ fn detect_objects_on_image(buf: Vec<u8>) -> Vec<(f32,f32,f32,f32,&'static str,f3
 // required as an input to YOLOv8 object detection
 // network.
 // Returns the input tensor, original image width and height
-fn prepare_input(buf: Vec<u8>) -> (Array<f32,IxDyn>, u32, u32) {
-    let img = image::load_from_memory_with_format(&buf, ImageFormat::Jpeg).unwrap();
+fn prepare_input(buf: Vec<u8>, image_format: ImageFormat) -> (Array<f32,IxDyn>, u32, u32) {
+    let img = image::load_from_memory_with_format(&buf, image_format).unwrap();
     let (img_width, img_height) = (img.width(), img.height());
     let img = img.resize_exact(640, 640, FilterType::CatmullRom);
     let mut input = Array::zeros((1, 3, 640, 640)).into_dyn();
